@@ -2,6 +2,7 @@
 
 import sys
 import os
+from itertools import permutations
 
 def parse_arguments():
     number_of_arguments = len(sys.argv)
@@ -21,7 +22,7 @@ def parse_arguments():
 
 
 def print_help():
-    print "\r\n"
+    print ""
     print " [ Options ]\r\n"
     print " -h  display this help and exit\r\n"
     print " -l  enter keywords to generate the password's dictionary\r\n"
@@ -29,7 +30,7 @@ def print_help():
     print " -v  display the running version of hgpsgnr\r\n"
 
 def print_version():
-    print "a"
+    print "[ hgpsgnr ] v0.2.0-alpha"
 
 def ask_for_keywords():
     print " Enter the keywords separated by ';': key_1; key2; key3; ...\r\n"
@@ -42,19 +43,21 @@ def keywords_combination(keywords):
     print " Generating passwords...\r\n"
     passwords_list = to_lower(keywords)
     passwords_list += to_upper(keywords)
-    passwords_list += capitalize_vowels(keywords)
-    passwords_list += capitalize_consonants(keywords)
+    #passwords_list += capitalize_vowels(keywords)
+    #passwords_list += capitalize_consonants(keywords)
     passwords_list += capitalize_first_letter(keywords)
     
     #At this points, short words can cause duplicates.
     #remove duplicates before mixing
     passwords_list = remove_duplicates(passwords_list)
 
-    separators = ['-', '_']
+    for p in passwords_list:
+        print p
+    separators = ['-', '_', ' ', '', '.']
 
-    passwords_list += combine_passwords_and_separators(passwords_list, separators)
-    #for p in passwords_list:
-        #print p
+    passwords_list = combine_passwords_and_separators(passwords_list, separators)
+    
+    passwords_list = remove_duplicates(passwords_list)
 
     create_passwords_dictionary(passwords_list)
 
@@ -101,15 +104,22 @@ def remove_duplicates(passwords_list):
     return list(set(passwords_list))
 
 def combine_passwords_and_separators(passwords_list, separators):
-    passwords_with_separators = []
-    
-    for separator in separators:
-        for i in range(0, len(passwords_list)):
-            for j in range(i + 1, len(passwords_list)):
-                passwords_with_separators.append(passwords_list[i] + separator + passwords_list[j])
-                passwords_with_separators.append(passwords_list[j] + separator + passwords_list[i])
+    passwords = []
+    first_separator = 0
 
-    return passwords_with_separators
+    for separator in separators:
+        for index_of_password in range(1, len(passwords_list) + 1):
+            if first_separator == 1 and index_of_password == 1:
+                pass
+            else:
+                passwords += map(separator.join, permutations(passwords_list, index_of_password))
+        
+        first_separator = 1
+
+    return passwords
+
+
+
 
 
 def create_passwords_dictionary(passwords_list):
@@ -120,7 +130,8 @@ def create_passwords_dictionary(passwords_list):
 
     print " Passwords dictionary sucessfully created in {0}\r\n".format(os.path.abspath(__file__))
 
+
 def keywords_combination_with_date():
-    print "c"
+    print ""
 
 parse_arguments()
