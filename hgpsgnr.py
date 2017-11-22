@@ -2,6 +2,8 @@
 
 import sys
 import os
+import datetime
+import calendar
 from itertools import permutations
 
 def parse_arguments():
@@ -16,6 +18,8 @@ def parse_arguments():
         keywords = ask_for_keywords()
         keywords_combination(keywords)
         exit()
+    elif (number_of_arguments == 2) and sys.argv[1] == '-d':
+        keywords_combinations_of_dates()
     elif (number_of_arguments == 3) and sys.argv[1] == '-l' and sys.argv[2] == 't':
         keywords_combination_with_date()
         exit()
@@ -27,10 +31,11 @@ def print_help():
     print " -h  display this help and exit\r\n"
     print " -l  enter keywords to generate the password's dictionary\r\n"
     print " -t  passwords contains current month and year\r\n"
+    print " -d  passwords from dates\r\n"
     print " -v  display the running version of hgpsgnr\r\n"
 
 def print_version():
-    print "[ hgpsgnr ] v0.2.0-alpha"
+    print "[ hgpsgnr ] v0.3.0-alpha"
 
 def ask_for_keywords():
     print " Enter the keywords separated by ';': key_1; key2; key3; ...\r\n"
@@ -39,6 +44,32 @@ def ask_for_keywords():
     print " Keywords saved!\r\n"
     return keywords
 
+def keywords_combinations_of_dates():
+    print " Generating passwords..\r\n"
+    
+    FIRST_YEAR = 1900
+    MONTHS_IN_YEAR = 12
+    now = datetime.datetime.now()
+    this_month = now.month
+    this_year = now.year
+
+    passwords = []
+
+    for year in range(FIRST_YEAR, this_year):
+        for month in range(1, MONTHS_IN_YEAR):
+            days_in_month = calendar.monthrange(year, month)[1]
+            for day in range(1, days_in_month):
+                if (len(str(day)) == 1):
+                        day = '0'+ str(day)
+                if (len(str(month)) == 1):
+                        month = '0' + str(month)
+                password = str(month) + str(day) + str(year)
+                password2 = str(day) + str(month) + str(year)
+                passwords.append(password)
+                passwords.append(password2)
+
+    create_passwords_dictionary(passwords)
+    
 def keywords_combination(keywords):
     print " Generating passwords...\r\n"
     passwords_list = to_lower(keywords)
